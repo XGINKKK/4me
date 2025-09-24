@@ -7,4 +7,3 @@ const extractPath = './extracted';
  // Create extraction directory if it doesn't exist
 if (!fs.existsSync(extractPath)) {
   fs.mkdirSync(extractPath, { recursive: true });
-}
