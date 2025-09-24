@@ -32,19 +32,41 @@ const server = http.createServer((req, res) => {
   const extname = path.extname(filePath).toLowerCase();
   const contentType = mimeTypes[extname] || 'application/octet-stream';
 
+  // Check if this is a request for a static asset
+  const isStaticAsset = extname && (
+    extname === '.js' || 
+    extname === '.css' || 
+    extname === '.png' || 
+    extname === '.jpg' || 
+    extname === '.jpeg' || 
+    extname === '.gif' || 
+    extname === '.ico' || 
+    extname === '.svg' || 
+    extname === '.woff' || 
+    extname === '.woff2' || 
+    extname === '.ttf' || 
+    extname === '.eot' ||
+    extname === '.json'
+  );
   fs.readFile(filePath, (error, content) => {
     if (error) {
       if (error.code === 'ENOENT') {
-        // Try to serve index.html for SPA routing
-        fs.readFile(path.join(extractedPath, 'index.html'), (error, content) => {
-          if (error) {
-            res.writeHead(404);
-            res.end('File not found');
-          } else {
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end(content, 'utf-8');
-          }
-        });
+        if (isStaticAsset) {
+          // For static assets, return 404 if not found
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('File not found: ' + req.url);
+        } else {
+          // For SPA routes, serve index.html
+          fs.readFile(path.join(extractedPath, 'index.html'), (error, content) => {
+            if (error) {
+              res.writeHead(404);
+              res.end('File not found');
+            } else {
+              res.writeHead(200, { 'Content-Type': 'text/html' });
+              res.end(content, 'utf-8');
+            }
+          });
+        }
       } else {
         res.writeHead(500);
         res.end('Server error: ' + error.code);
