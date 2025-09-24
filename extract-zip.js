@@ -5,3 +5,6 @@ const zipPath = 'saveweb2zip-com-9000-firebase-studio-1758720228337-cluster-57i2
 const extractPath = './extracted';
  
  // Create extraction directory if it doesn't exist
+if (!fs.existsSync(extractPath)) {
+  fs.mkdirSync(extractPath, { recursive: true });
+}
